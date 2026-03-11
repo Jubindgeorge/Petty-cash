@@ -15,7 +15,7 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import { format } from 'date-fns';
-import { cn, COMPANIES, type Company, type VoucherData } from './types';
+import { cn, COMPANIES, numberToWords, type Company, type VoucherData } from './types';
 
 export default function App() {
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
@@ -45,6 +45,7 @@ export default function App() {
     };
     setVouchers([newVoucher, ...vouchers]);
     setIsCreating(false);
+    setViewingVoucher(newVoucher);
   };
 
   const handleDeleteVoucher = (id: string) => {
@@ -56,7 +57,10 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 text-zinc-900 font-sans">
+    <div className={cn(
+      "min-h-screen bg-zinc-50 text-zinc-900 font-sans",
+      viewingVoucher && "has-viewing-voucher"
+    )}>
       {/* Header */}
       <header className="bg-white border-b border-zinc-200 sticky top-0 z-10 print:hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -105,7 +109,7 @@ export default function App() {
                     <img 
                       src={company.logo} 
                       alt={company.name}
-                      className="w-16 h-16 rounded-xl mb-6 object-cover bg-zinc-100"
+                      className="max-w-[120px] max-h-[60px] w-auto h-auto mb-6 object-contain bg-zinc-50 rounded-lg p-1"
                       referrerPolicy="no-referrer"
                     />
                     <h3 className={cn("text-xl font-bold mb-2 transition-colors", `group-hover:${company.accentColor}`)}>{company.name}</h3>
@@ -132,7 +136,7 @@ export default function App() {
                   <img 
                     src={selectedCompany.logo} 
                     alt={selectedCompany.name}
-                    className="w-16 h-16 rounded-xl object-cover bg-zinc-100"
+                    className="max-w-[140px] max-h-[70px] w-auto h-auto object-contain bg-zinc-50 rounded-lg p-1"
                     referrerPolicy="no-referrer"
                   />
                   <div>
@@ -153,12 +157,21 @@ export default function App() {
               </div>
 
               {/* Vouchers List */}
-              <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm overflow-hidden">
+              <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm overflow-hidden print-content">
                 <div className="px-6 py-4 border-b border-zinc-100 flex items-center justify-between">
                   <h3 className="font-bold text-lg">Recent Vouchers</h3>
-                  <span className="text-xs font-medium px-2 py-1 bg-zinc-100 rounded-full text-zinc-500">
-                    {vouchers.filter(v => v.companyId === selectedCompany.id).length} Total
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <button 
+                      onClick={() => window.print()}
+                      className="text-xs font-semibold flex items-center gap-1.5 px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 rounded-lg text-zinc-600 transition-colors"
+                    >
+                      <Printer size={14} />
+                      Print List
+                    </button>
+                    <span className="text-xs font-medium px-2 py-1 bg-zinc-100 rounded-full text-zinc-500">
+                      {vouchers.filter(v => v.companyId === selectedCompany.id).length} Total
+                    </span>
+                  </div>
                 </div>
                 
                 <div className="divide-y divide-zinc-100">
@@ -203,10 +216,12 @@ export default function App() {
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setViewingVoucher(voucher);
+                                  setTimeout(() => window.print(), 100);
                                 }}
-                                className="p-2 hover:bg-white rounded-lg border border-transparent hover:border-zinc-200 text-zinc-500"
+                                className="p-2 hover:bg-white rounded-lg border border-transparent hover:border-zinc-200 text-zinc-500 flex items-center gap-1 text-xs font-bold"
                               >
                                 <Printer size={18} />
+                                Print
                               </button>
                               <button 
                                 onClick={(e) => {
@@ -438,7 +453,7 @@ export default function App() {
                           <img 
                             src={company.logo} 
                             alt={company.name}
-                            className="w-24 h-24 object-cover grayscale print:grayscale"
+                            className="max-w-[200px] max-h-[100px] w-auto h-auto object-contain grayscale print:grayscale"
                             referrerPolicy="no-referrer"
                           />
                           <div>
@@ -475,8 +490,7 @@ export default function App() {
                         <div className="col-span-8 flex items-end gap-4 border-b border-zinc-300 pb-2">
                           <span className="text-sm font-bold uppercase whitespace-nowrap">Amount in Words:</span>
                           <span className="text-lg italic flex-grow capitalize">
-                            {/* Simple number to words logic could go here, but for now just placeholder */}
-                            Amount in Dirhams
+                            {numberToWords(viewingVoucher.amount)}
                           </span>
                         </div>
                         <div className="col-span-4 flex items-center gap-4 bg-zinc-100 p-4 ml-8 border-2 border-zinc-900">
@@ -526,10 +540,13 @@ export default function App() {
           body * {
             visibility: hidden;
           }
-          #printable-voucher, #printable-voucher * {
-            visibility: visible;
+          
+          /* Print Voucher Mode */
+          .has-viewing-voucher #printable-voucher, 
+          .has-viewing-voucher #printable-voucher * {
+            visibility: visible !important;
           }
-          #printable-voucher {
+          .has-viewing-voucher #printable-voucher {
             position: absolute;
             left: 0;
             top: 0;
@@ -539,9 +556,28 @@ export default function App() {
             border: none;
             box-shadow: none;
           }
+
+          /* Print List Mode */
+          div:not(.has-viewing-voucher) .print-content,
+          div:not(.has-viewing-voucher) .print-content * {
+            visibility: visible !important;
+          }
+          div:not(.has-viewing-voucher) .print-content {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            border: none;
+            box-shadow: none;
+          }
+
           @page {
-            size: landscape;
-            margin: 1cm;
+            size: auto;
+            margin: 1.5cm;
+          }
+          
+          .print\:hidden {
+            display: none !important;
           }
         }
       `}} />

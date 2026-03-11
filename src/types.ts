@@ -5,6 +5,54 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export function numberToWords(num: number): string {
+  const ones = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+  const tens = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+  const teens = ['ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+
+  function convert_hundreds(num: number): string {
+    if (num > 99) {
+      return ones[Math.floor(num / 100)] + " hundred " + convert_tens(num % 100);
+    } else {
+      return convert_tens(num);
+    }
+  }
+
+  function convert_tens(num: number): string {
+    if (num < 10) return ones[num];
+    else if (num >= 10 && num < 20) return teens[num - 10];
+    else {
+      return tens[Math.floor(num / 10)] + " " + ones[num % 10];
+    }
+  }
+
+  function convert(num: number): string {
+    if (num === 0) return "";
+    if (num < 1000) return convert_hundreds(num);
+    if (num < 1000000) return convert(Math.floor(num / 1000)) + " thousand " + convert_hundreds(num % 1000);
+    if (num < 1000000000) return convert(Math.floor(num / 1000000)) + " million " + convert(num % 1000000);
+    return convert(Math.floor(num / 1000000000)) + " billion " + convert(num % 1000000000);
+  }
+
+  if (num === 0) return "zero dirhams only";
+
+  const wholePart = Math.floor(num);
+  const decimalPart = Math.round((num - wholePart) * 100);
+
+  let result = "";
+  if (wholePart > 0) {
+    result = convert(wholePart).trim() + " dirhams";
+  } else if (decimalPart > 0) {
+    result = "zero dirhams";
+  }
+
+  if (decimalPart > 0) {
+    result += " and " + convert_tens(decimalPart).trim() + " fils";
+  }
+  
+  return result.trim() + " only";
+}
+
 export interface Company {
   id: string;
   name: string;
