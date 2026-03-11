@@ -158,9 +158,14 @@ export default function App() {
 
               {/* Vouchers List */}
               <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm overflow-hidden print-content">
-                <div className="px-6 py-4 border-b border-zinc-100 flex items-center justify-between">
-                  <h3 className="font-bold text-lg">Recent Vouchers</h3>
-                  <div className="flex items-center gap-3">
+                <div className="px-6 py-4 border-b border-zinc-100 flex items-center justify-between print:border-b-4 print:border-zinc-900 print:pb-6 print:mb-6">
+                  <div className="flex flex-col">
+                    <h3 className="font-bold text-lg print:text-3xl print:uppercase print:tracking-tight">Recent Vouchers</h3>
+                    <p className="hidden print:block text-xs text-zinc-500 mt-1 uppercase tracking-widest font-bold">
+                      {selectedCompany.name} • Petty Cash Summary Report
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3 print:hidden">
                     <button 
                       onClick={() => window.print()}
                       className="text-xs font-semibold flex items-center gap-1.5 px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 rounded-lg text-zinc-600 transition-colors"
@@ -174,7 +179,7 @@ export default function App() {
                   </div>
                 </div>
                 
-                <div className="divide-y divide-zinc-100">
+                <div className="divide-y divide-zinc-100 print:divide-y-2 print:divide-zinc-900">
                   {vouchers.filter(v => v.companyId === selectedCompany.id).length === 0 ? (
                     <div className="p-12 text-center">
                       <div className="w-16 h-16 bg-zinc-50 rounded-full flex items-center justify-center mx-auto mb-4 text-zinc-300">
@@ -194,24 +199,26 @@ export default function App() {
                       .map((voucher) => (
                         <div 
                           key={voucher.id} 
-                          className="px-6 py-4 flex items-center justify-between hover:bg-zinc-50 transition-colors group cursor-pointer"
+                          className="px-6 py-4 flex items-center justify-between hover:bg-zinc-50 transition-colors group cursor-pointer print:px-0 print:py-4"
                           onClick={() => setViewingVoucher(voucher)}
                         >
                           <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-lg bg-zinc-100 flex items-center justify-center text-zinc-500 font-mono text-xs">
+                            <div className="w-10 h-10 rounded-lg bg-zinc-100 flex items-center justify-center text-zinc-500 font-mono text-xs print:border print:border-zinc-900 print:bg-white print:text-zinc-900">
                               #{voucher.voucherNo}
                             </div>
                             <div>
-                              <div className="font-semibold">{voucher.paidTo}</div>
-                              <div className="text-xs text-zinc-500">{format(new Date(voucher.date), 'MMM dd, yyyy')} • {voucher.description}</div>
+                              <div className="font-semibold print:text-lg">{voucher.paidTo}</div>
+                              <div className="text-xs text-zinc-500 print:text-zinc-900 print:font-medium">
+                                {format(new Date(voucher.date), 'MMM dd, yyyy')} • {voucher.description}
+                              </div>
                             </div>
                           </div>
                           <div className="flex items-center gap-6">
                             <div className="text-right">
-                              <div className="font-bold text-lg">AED {voucher.amount.toLocaleString()}</div>
-                              <div className="text-[10px] uppercase tracking-wider text-zinc-400 font-bold">{voucher.accountCode}</div>
+                              <div className="font-bold text-lg print:text-xl">AED {voucher.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+                              <div className="text-[10px] uppercase tracking-wider text-zinc-400 font-bold print:text-zinc-900">{voucher.accountCode}</div>
                             </div>
-                            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity print:hidden">
                               <button 
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -438,7 +445,7 @@ export default function App() {
                 initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
                 className={cn(
-                  "bg-white p-12 shadow-2xl rounded-sm border border-zinc-200 mx-auto print:shadow-none print:border-none print:p-0",
+                  "bg-white p-12 shadow-2xl rounded-sm border border-zinc-200 mx-auto print:shadow-none print:border-none print:p-0 print:m-0",
                   COMPANIES.find(c => c.id === viewingVoucher.companyId)?.fontFamily
                 )}
                 id="printable-voucher"
@@ -446,84 +453,110 @@ export default function App() {
                 {(() => {
                   const company = COMPANIES.find(c => c.id === viewingVoucher.companyId)!;
                   return (
-                    <div className="space-y-12">
+                    <div className="space-y-10 print:space-y-8">
                       {/* Voucher Header */}
-                      <div className="flex justify-between items-start border-b-2 border-zinc-900 pb-8">
-                        <div className="flex gap-6">
+                      <div className="flex justify-between items-start border-b-4 border-zinc-900 pb-8">
+                        <div className="flex gap-8 items-center">
                           <img 
                             src={company.logo} 
                             alt={company.name}
-                            className="max-w-[200px] max-h-[100px] w-auto h-auto object-contain grayscale print:grayscale"
+                            className="max-w-[180px] max-h-[90px] w-auto h-auto object-contain"
                             referrerPolicy="no-referrer"
                           />
-                          <div>
-                            <h2 className="text-3xl font-black uppercase tracking-tighter mb-1">{company.name}</h2>
-                            <p className="text-sm text-zinc-600 max-w-xs leading-tight">{company.address}</p>
-                            <p className="text-sm text-zinc-600 mt-1">{company.phone} • {company.email}</p>
+                          <div className="border-l-2 border-zinc-200 pl-8">
+                            <h2 className="text-3xl font-black uppercase tracking-tighter mb-1 leading-none">{company.name}</h2>
+                            <p className="text-xs text-zinc-600 max-w-xs leading-tight font-bold">{company.address}</p>
+                            <p className="text-xs text-zinc-600 mt-1 font-bold">{company.phone} • {company.email}</p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="text-4xl font-black uppercase tracking-widest text-zinc-900 mb-2">Petty Cash</div>
-                          <div className="inline-block border-2 border-zinc-900 px-4 py-2">
-                            <span className="text-sm font-bold uppercase mr-2">Voucher No:</span>
-                            <span className="text-2xl font-black font-mono">{viewingVoucher.voucherNo}</span>
+                          <div className="text-5xl font-black uppercase tracking-[0.1em] text-zinc-900 mb-4">Voucher</div>
+                          <div className="inline-flex flex-col items-end">
+                            <div className="flex items-center gap-3 mb-2">
+                              <span className="text-xs font-black uppercase tracking-widest text-zinc-500">Number</span>
+                              <span className="text-2xl font-black px-3 py-1 bg-zinc-900 text-white min-w-[120px] text-center">{viewingVoucher.voucherNo}</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <span className="text-xs font-black uppercase tracking-widest text-zinc-500">Date</span>
+                              <span className="text-lg font-bold border-b-2 border-zinc-900 min-w-[120px] text-center">{format(new Date(viewingVoucher.date), 'dd / MM / yyyy')}</span>
+                            </div>
                           </div>
                         </div>
                       </div>
 
                       {/* Voucher Body */}
-                      <div className="grid grid-cols-12 gap-y-10">
-                        <div className="col-span-8 flex items-end gap-4 border-b border-zinc-300 pb-2">
-                          <span className="text-sm font-bold uppercase whitespace-nowrap">Paid To:</span>
-                          <span className="text-xl font-medium flex-grow">{viewingVoucher.paidTo}</span>
-                        </div>
-                        <div className="col-span-4 flex items-end gap-4 border-b border-zinc-300 pb-2 ml-8">
-                          <span className="text-sm font-bold uppercase whitespace-nowrap">Date:</span>
-                          <span className="text-xl font-medium flex-grow">{format(new Date(viewingVoucher.date), 'MMMM dd, yyyy')}</span>
+                      <div className="space-y-8">
+                        <div className="flex items-end gap-6 border-b-2 border-zinc-200 pb-3">
+                          <span className="text-sm font-black uppercase tracking-widest text-zinc-400 min-w-[100px]">Paid To</span>
+                          <span className="text-2xl font-bold flex-grow text-zinc-900">{viewingVoucher.paidTo}</span>
                         </div>
 
-                        <div className="col-span-12 flex items-start gap-4 border-b border-zinc-300 pb-2 min-h-[80px]">
-                          <span className="text-sm font-bold uppercase whitespace-nowrap mt-1">Description:</span>
-                          <span className="text-lg leading-relaxed">{viewingVoucher.description}</span>
+                        <div className="flex items-start gap-6 border-b-2 border-zinc-200 pb-3 min-h-[100px]">
+                          <span className="text-sm font-black uppercase tracking-widest text-zinc-400 min-w-[100px] mt-2">Description</span>
+                          <span className="text-xl leading-relaxed text-zinc-800 font-medium">{viewingVoucher.description}</span>
                         </div>
 
-                        <div className="col-span-8 flex items-end gap-4 border-b border-zinc-300 pb-2">
-                          <span className="text-sm font-bold uppercase whitespace-nowrap">Amount in Words:</span>
-                          <span className="text-lg italic flex-grow capitalize">
-                            {numberToWords(viewingVoucher.amount)}
-                          </span>
-                        </div>
-                        <div className="col-span-4 flex items-center gap-4 bg-zinc-100 p-4 ml-8 border-2 border-zinc-900">
-                          <span className="text-xl font-black">AED</span>
-                          <span className="text-3xl font-black flex-grow text-right">{viewingVoucher.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                        <div className="grid grid-cols-12 gap-8">
+                          <div className="col-span-8 flex flex-col justify-end">
+                            <div className="flex items-end gap-6 border-b-2 border-zinc-200 pb-3">
+                              <span className="text-sm font-black uppercase tracking-widest text-zinc-400 min-w-[100px]">In Words</span>
+                              <span className="text-lg italic font-bold text-zinc-900 capitalize">
+                                {numberToWords(viewingVoucher.amount)}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="col-span-4">
+                            <div className="bg-zinc-50 border-4 border-zinc-900 p-6 flex flex-col items-center justify-center relative overflow-hidden">
+                              <div className="absolute top-0 left-0 w-full h-1 bg-zinc-900" />
+                              <div className="absolute bottom-0 left-0 w-full h-1 bg-zinc-900" />
+                              <span className="text-xs font-black uppercase tracking-[0.3em] text-zinc-400 mb-2">Total Amount</span>
+                              <div className="flex items-baseline gap-3">
+                                <span className="text-xl font-black text-zinc-900">AED</span>
+                                <span className="text-4xl font-black text-zinc-900">
+                                  {viewingVoucher.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
 
                       {/* Voucher Footer */}
-                      <div className="grid grid-cols-3 gap-12 pt-12">
+                      <div className="grid grid-cols-4 gap-8 pt-12">
                         <div className="space-y-4">
-                          <div className="h-12 border-b border-zinc-900 flex items-end justify-center">
-                            <span className="text-lg font-medium">{viewingVoucher.accountCode}</span>
+                          <div className="h-16 border-2 border-zinc-200 rounded-lg flex items-center justify-center bg-zinc-50/50">
+                            <span className="text-lg font-bold text-zinc-900">{viewingVoucher.accountCode}</span>
                           </div>
-                          <p className="text-center text-[10px] font-black uppercase tracking-widest">Account Code</p>
+                          <p className="text-center text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">Account Code</p>
                         </div>
                         <div className="space-y-4">
-                          <div className="h-12 border-b border-zinc-900 flex items-end justify-center">
-                            <span className="text-lg font-medium">{viewingVoucher.approvedBy}</span>
+                          <div className="h-16 border-b-2 border-zinc-900 flex items-end justify-center pb-2">
+                            <span className="text-sm font-bold text-zinc-400 italic">Authorized Signature</span>
                           </div>
-                          <p className="text-center text-[10px] font-black uppercase tracking-widest">Approved By</p>
+                          <p className="text-center text-[10px] font-black uppercase tracking-[0.2em] text-zinc-900">Approved By</p>
                         </div>
                         <div className="space-y-4">
-                          <div className="h-12 border-b border-zinc-900 flex items-end justify-center">
-                            <span className="text-lg font-medium">{viewingVoucher.receivedBy}</span>
+                          <div className="h-16 border-b-2 border-zinc-900 flex items-end justify-center pb-2">
+                            <span className="text-sm font-bold text-zinc-400 italic">Receiver's Signature</span>
                           </div>
-                          <p className="text-center text-[10px] font-black uppercase tracking-widest">Received By</p>
+                          <p className="text-center text-[10px] font-black uppercase tracking-[0.2em] text-zinc-900">Received By</p>
+                        </div>
+                        <div className="space-y-4 flex flex-col items-center justify-center border-2 border-dashed border-zinc-200 rounded-xl p-4">
+                          <div className="w-16 h-16 border-2 border-zinc-100 rounded-full flex items-center justify-center">
+                            <span className="text-[8px] text-zinc-300 font-black text-center leading-tight">OFFICIAL<br/>STAMP</span>
+                          </div>
                         </div>
                       </div>
 
-                      <div className="pt-8 flex justify-between items-center text-[8px] text-zinc-400 uppercase tracking-[0.2em]">
-                        <span>Generated via Petty Cash Pro • {new Date().toLocaleString()}</span>
-                        <span>Original Copy</span>
+                      <div className="pt-8 flex justify-between items-center text-[9px] text-zinc-400 font-bold uppercase tracking-[0.2em] border-t border-zinc-100">
+                        <div className="flex items-center gap-4">
+                          <span>Petty Cash Pro System</span>
+                          <span className="w-1 h-1 bg-zinc-200 rounded-full" />
+                          <span>{new Date().toLocaleString()}</span>
+                        </div>
+                        <div className="px-3 py-1 border border-zinc-200 rounded-full">
+                          Original Document
+                        </div>
                       </div>
                     </div>
                   );
@@ -537,6 +570,11 @@ export default function App() {
       {/* Global Print Styles */}
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
+          body {
+            background: white !important;
+            color: black !important;
+          }
+          
           body * {
             visibility: hidden;
           }
@@ -570,14 +608,27 @@ export default function App() {
             border: none;
             box-shadow: none;
           }
+          
+          /* Hide interactive elements in list print */
+          .print-content button, 
+          .print-content .print\:hidden {
+            display: none !important;
+          }
 
           @page {
-            size: auto;
+            size: A4;
             margin: 1.5cm;
           }
           
           .print\:hidden {
             display: none !important;
+          }
+          
+          /* Force high contrast for printing */
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
           }
         }
       `}} />
