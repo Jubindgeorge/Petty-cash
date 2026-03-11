@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Building2, 
@@ -22,6 +22,17 @@ export default function App() {
   const [vouchers, setVouchers] = useState<(VoucherData & { id: string; companyId: string })[]>([]);
   const [isCreating, setIsCreating] = useState(false);
   const [viewingVoucher, setViewingVoucher] = useState<(VoucherData & { id: string; companyId: string }) | null>(null);
+  const [shouldAutoPrint, setShouldAutoPrint] = useState(false);
+
+  useEffect(() => {
+    if (viewingVoucher && shouldAutoPrint) {
+      const timer = setTimeout(() => {
+        window.print();
+        setShouldAutoPrint(false);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [viewingVoucher, shouldAutoPrint]);
 
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -46,6 +57,7 @@ export default function App() {
     setVouchers([newVoucher, ...vouchers]);
     setIsCreating(false);
     setViewingVoucher(newVoucher);
+    setShouldAutoPrint(true);
   };
 
   const handleDeleteVoucher = (id: string) => {
@@ -128,10 +140,10 @@ export default function App() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="space-y-8 print:hidden"
+              className="space-y-8"
             >
               {/* Company Banner */}
-              <div className="bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 print:hidden">
                 <div className="flex items-center gap-4">
                   <img 
                     src={selectedCompany.logo} 
@@ -223,7 +235,7 @@ export default function App() {
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setViewingVoucher(voucher);
-                                  setTimeout(() => window.print(), 100);
+                                  setShouldAutoPrint(true);
                                 }}
                                 className="p-2 hover:bg-white rounded-lg border border-transparent hover:border-zinc-200 text-zinc-500 flex items-center gap-1 text-xs font-bold"
                               >
@@ -570,58 +582,62 @@ export default function App() {
       {/* Global Print Styles */}
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
+          /* Reset defaults for printing */
           body {
             background: white !important;
-            color: black !important;
+            margin: 0 !important;
+            padding: 0 !important;
           }
           
-          body * {
-            visibility: hidden;
-          }
-          
-          /* Print Voucher Mode */
-          .has-viewing-voucher #printable-voucher, 
-          .has-viewing-voucher #printable-voucher * {
-            visibility: visible !important;
-          }
-          .has-viewing-voucher #printable-voucher {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            margin: 0;
-            padding: 0;
-            border: none;
-            box-shadow: none;
+          /* Hide everything by default using display: none for reliability */
+          .print-hidden, .print\:hidden {
+            display: none !important;
           }
 
-          /* Print List Mode */
-          div:not(.has-viewing-voucher) .print-content,
-          div:not(.has-viewing-voucher) .print-content * {
-            visibility: visible !important;
+          /* Handle Voucher Printing */
+          .has-viewing-voucher header,
+          .has-viewing-voucher main {
+            display: none !important;
           }
-          div:not(.has-viewing-voucher) .print-content {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            border: none;
-            box-shadow: none;
+
+          .has-viewing-voucher .fixed.inset-0 {
+            position: static !important;
+            display: block !important;
+            background: none !important;
+            padding: 0 !important;
+            overflow: visible !important;
+          }
+
+          .has-viewing-voucher #printable-voucher {
+            display: block !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+            box-shadow: none !important;
+            position: static !important;
+          }
+
+          /* Handle List Printing */
+          body:not(.has-viewing-voucher) .print-content {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            border: none !important;
+            box-shadow: none !important;
+            z-index: 9999 !important;
+            background: white !important;
           }
           
-          /* Hide interactive elements in list print */
-          .print-content button, 
-          .print-content .print\:hidden {
+          body:not(.has-viewing-voucher) header,
+          body:not(.has-viewing-voucher) main > *:not(.print-content) {
             display: none !important;
           }
 
           @page {
             size: A4;
             margin: 1.5cm;
-          }
-          
-          .print\:hidden {
-            display: none !important;
           }
           
           /* Force high contrast for printing */
