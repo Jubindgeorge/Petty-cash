@@ -32,7 +32,7 @@ export const COMPANIES: Company[] = [
   {
     id: 'jimmy',
     name: 'Jimmy Aventus FZE',
-    logo: '/JA.png',
+    logo: 'https://raw.githubusercontent.com/Jubindgeorge/stock-manager/refs/heads/main/pdflogo.png',
     address: 'Q1-006 008B, Sharjah Airport International Free Zone, Sharjah, UAE',
     phone: '+971 56 368 9970',
     email: 'accounts@jimmyaventus.com',
@@ -43,7 +43,7 @@ export const COMPANIES: Company[] = [
   {
     id: 'hekayat',
     name: 'Hekayat Attar & Al Oud Perfumes Trading LLC',
-    logo: '/HA.png',
+    logo: 'https://raw.githubusercontent.com/Jubindgeorge/stock-manager/refs/heads/main/banner.png',
     address: 'Shop 7, Corniche Road, Al Majarrah, Sharjah, UAE',
     phone: '+971 52 968 3102',
     email: 'info@hekayatattar.com',
