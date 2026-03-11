@@ -8,7 +8,6 @@ import {
   Trash2, 
   ChevronRight, 
   ArrowLeft,
-  DollarSign,
   Calendar,
   User,
   FileText,
@@ -62,8 +61,8 @@ export default function App() {
       <header className="bg-white border-b border-zinc-200 sticky top-0 z-10 print:hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center text-white", selectedCompany ? selectedCompany.primaryColor : "bg-purple-700")}>
-              <DollarSign size={24} />
+            <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold", selectedCompany ? selectedCompany.primaryColor : "bg-purple-700")}>
+              AED
             </div>
             <h1 className="text-xl font-bold tracking-tight">Petty Cash Pro</h1>
           </div>
@@ -196,7 +195,7 @@ export default function App() {
                           </div>
                           <div className="flex items-center gap-6">
                             <div className="text-right">
-                              <div className="font-bold text-lg">${voucher.amount.toLocaleString()}</div>
+                              <div className="font-bold text-lg">AED {voucher.amount.toLocaleString()}</div>
                               <div className="text-[10px] uppercase tracking-wider text-zinc-400 font-bold">{voucher.accountCode}</div>
                             </div>
                             <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -331,7 +330,7 @@ export default function App() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label className="text-xs font-bold uppercase tracking-wider text-zinc-500 flex items-center gap-1">
-                        <DollarSign size={12} /> Amount
+                        Amount (AED)
                       </label>
                       <input 
                         required 
@@ -477,11 +476,11 @@ export default function App() {
                           <span className="text-sm font-bold uppercase whitespace-nowrap">Amount in Words:</span>
                           <span className="text-lg italic flex-grow capitalize">
                             {/* Simple number to words logic could go here, but for now just placeholder */}
-                            One Hundred and Fifty Dollars Only
+                            Amount in Dirhams
                           </span>
                         </div>
                         <div className="col-span-4 flex items-center gap-4 bg-zinc-100 p-4 ml-8 border-2 border-zinc-900">
-                          <span className="text-xl font-black">$</span>
+                          <span className="text-xl font-black">AED</span>
                           <span className="text-3xl font-black flex-grow text-right">{viewingVoucher.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                         </div>
                       </div>
